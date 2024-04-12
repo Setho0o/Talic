@@ -1,7 +1,6 @@
 package audio
 
 import (
-	"fmt"
 
 	"github.com/Setho0o/Talic/utils"
 )
@@ -13,7 +12,6 @@ type Playlist struct {
 
 func (p Playlist) CurrentSong() string {
   songs := utils.GetSongs()
-  fmt.Println(songs)
   return songs[p.Song]
 }
 func (p *Playlist) NextSong() string {

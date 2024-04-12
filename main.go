@@ -1,10 +1,13 @@
 package main
 
 import (
-	"fmt"
+//	"fmt"
 
   "github.com/ebitengine/oto/v3"
-	"github.com/Setho0o/Talic/audio"
+
+  "github.com/Setho0o/Talic/audio"
+ // "github.com/Setho0o/Talic/utils"
+
 )
 
 func main() {
@@ -24,8 +27,8 @@ func main() {
     playlist.OpenTrue()
     player := audio.Player(&playlist, otoCtx, readyChan)
     Tui()
-    Keys(&playlist, player)
-    fmt.Println(playlist.Open, playlist.Song)
+    Keys(&playlist, &player)
+  //  fmt.Println(utils.GetSongs(), "\n", playlist.Open, playlist.Song)
     
     if playlist.Open {
       break

@@ -2,10 +2,10 @@ package audio
 
 import (
 	"bytes"
-	"fmt"
 	"os"
 	"time"
 
+	"github.com/Setho0o/Talic/utils"
 	"github.com/ebitengine/oto/v3"
 	"github.com/hajimehoshi/go-mp3"
 )
@@ -29,22 +29,26 @@ func Player(p *Playlist, otoCtx *oto.Context, readyChan chan struct {} ) oto.Pla
       for player.IsPlaying() {
         time.Sleep(time.Millisecond)
       }
-      Next(p, *player)
+      Next(p, player)
     }()
     return *player 
   
 }
-func Close(player oto.Player) {
+func Close(player *oto.Player) {
   player.Close()
 }
-func Pause(player oto.Player) {
+func Pause(player *oto.Player) {
   player.Pause()
 }
-func Next(p *Playlist, player oto.Player) {
-  p.Song++
-  p.OpenFalse()
-  fmt.Println(p.Open)
-  Close(player)
+func Play(player *oto.Player) {
+  player.Play()
+}
+func Next(p *Playlist, player *oto.Player) {
+  if p.Song == len(utils.GetSongs()) - 1  { 
+    p.Song = 0
+  } else {
+    p.Song++
+  }
 }
   
 
