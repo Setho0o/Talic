@@ -1,11 +1,13 @@
 package main
 
 import (
-	"os"
+  "os"
   "fmt"
 
 	gt "github.com/buger/goterm"
 	"github.com/muesli/termenv"
+
+  "github.com/Setho0o/Talic/utils"
 )
 func Tui() {
   output := termenv.NewOutput(os.Stdout) 
@@ -15,11 +17,12 @@ func Tui() {
   boxUp()
   boxDown()
 }
+
 func boxLeft() {
   box := gt.NewBox(50|gt.PCT , gt.Height(), 0)
   box.Border = "━ ┃ ┏ ┓ ┗ ┛ "
 
-	songs := GetSongs()
+	songs := utils.GetSongs()
   for _, e := range songs {
     fmt.Fprint(box, e, "\n") 
   }
@@ -27,6 +30,7 @@ func boxLeft() {
   gt.Print(box.String())
   gt.Flush()
 }
+
 func boxUp() { 
   box := gt.NewBox(50|gt.PCT , 52|gt.PCT , 0)
   box.Border = "━ ┃ ┏ ┓ ┗ ┛ "
@@ -35,6 +39,7 @@ func boxUp() {
   gt.Flush()
 
 }
+
 func boxDown() { 
   box := gt.NewBox(50|gt.PCT , 51|gt.PCT , 0)
   box.Border = "━ ┃ ┏ ┓ ┗ ┛ "
@@ -43,5 +48,6 @@ func boxDown() {
   gt.Flush()
 
 }
+
 func Options() {
 }
