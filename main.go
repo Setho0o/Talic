@@ -3,11 +3,10 @@ package main
 import (
 //	"fmt"
 
-  "github.com/ebitengine/oto/v3"
+	"github.com/ebitengine/oto/v3"
 
-  "github.com/Setho0o/Talic/audio"
- // "github.com/Setho0o/Talic/utils"
-
+	"github.com/Setho0o/Talic/audio"
+	//"github.com/Setho0o/Talic/utils"
 )
 
 func main() {
@@ -22,21 +21,16 @@ func main() {
     panic("oto.NewContext failed: " + err.Error())
   }
 
-  playlist := audio.Playlist{Song: 0, Open: true}
-  for {
-    playlist.OpenTrue()
+  playlist := audio.Playlist{}
+
+  for { 
     player := audio.Player(&playlist, otoCtx, readyChan)
     Tui()
-    Keys(&playlist, &player)
-  //  fmt.Println(utils.GetSongs(), "\n", playlist.Open, playlist.Song)
-    
-    if playlist.Open {
+
+    end := Keys(&playlist, &player)
+  //  fmt.Println(utils.GetSongs(), "\n", playlist.Song)
+    if end == true {
       break
     }
-  } 
-}
-
-
-func Esc() {
-  Options()
+  }    
 }

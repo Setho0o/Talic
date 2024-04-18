@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"os/exec"
+	"time"
 
 	"atomicgo.dev/keyboard"
 	"atomicgo.dev/keyboard/keys"
@@ -10,39 +11,55 @@ import (
 	"github.com/Setho0o/Talic/audio"
 	"github.com/ebitengine/oto/v3"
 )
-func Keys(p *audio.Playlist, player *oto.Player) {
-  pause := false   
+func Keys(p *audio.Playlist, player *oto.Player) bool {
+  end := false
   keyboard.Listen(func(key keys.Key) (stop bool, err error) {
-    if !p.Open { //Determins if the playlist has been closed ex - changing a song 
-      return true, nil
-    }
     if key.Code == keys.RuneKey {
       switch key.String() {
       case "q" :
         cmd := exec.Command("clear") 
         cmd.Stdout = os.Stdout
         cmd.Run()
+        end = true
         return true, nil
       }
     } else {
-        switch key.Code {
-        case keys.CtrlC, keys.Escape:
-          Esc()
-        case keys.Tab:
-         // Kind of confusing the way I designed it but when a new song needs to be played we just end this process/player and go on to the next cycle. 
-          audio.Close(player) 
-          p.OpenFalse()
-          return true, nil
-        case keys.Space: 
-          if pause == false {
-            audio.Pause(player)
-            pause = true 
+      switch key.Code {
+
+      case keys.CtrlC, keys.Escape:
+
+      case keys.Tab, keys.Right:   
+        player.Close() 
+        time.Sleep(time.Millisecond * 100)
+        p.NextSong()
+        return true, nil
+
+      case keys.Space: 
+        if p.Pause == false {
+          player.Pause()
+          p.Pause = true 
         } else {
-            audio.Play(player)
-            pause = false 
+          player.Play()
+          p.Pause = false 
         }
+      case keys.Up:
+        player.SetVolume(player.Volume() + 0.10)
+        if player.Volume() > 1 {
+          player.SetVolume(1)
+        }
+      case keys.Down:
+        player.SetVolume(player.Volume() - 0.10)
+        if player.Volume() < 0 {
+          player.SetVolume(0)
+        }
+      case keys.Left:
+        player.Close() 
+        time.Sleep(time.Millisecond * 100)
+        p.PreviousSong()
+        return true, nil
       }
     }
     return false, nil 
   })
+  return end
 }

@@ -7,21 +7,28 @@ import (
 
 type Playlist struct {
   Song int
-  Open bool
+  Pause bool
 }
 
-func (p Playlist) CurrentSong() string {
+func (p *Playlist) CurrentSong() string {
   songs := utils.GetSongs()
   return songs[p.Song]
 }
-func (p *Playlist) NextSong() string {
-  songs := utils.GetSongs()
-  p.Song++
-  return songs[p.Song]
+
+func (p *Playlist) NextSong() {
+  if p.Song == len(utils.GetSongs()) - 1  { 
+    p.Song = 0
+  } else {
+    p.Song++
+  }
 }
-func (p *Playlist) OpenTrue() {
-  p.Open = true 
+func (p *Playlist) PreviousSong() {
+  if p.Song <= 0  { 
+    p.Song = len(utils.GetSongs()) - 1
+  } else {
+    p.Song--
+  }
 }
-func (p *Playlist) OpenFalse() {
-  p.Open = false 
-}
+
+
+
