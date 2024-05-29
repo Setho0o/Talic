@@ -3,7 +3,7 @@ package audio
 import (
 	"bytes"
 	"os"
-"time"
+  "time"
 
 	"atomicgo.dev/keyboard"
 	"atomicgo.dev/keyboard/keys"
@@ -13,7 +13,7 @@ import (
 )
 
 func Player(p *Playlist, otoCtx *oto.Context, readyChan chan struct {} ) oto.Player {
-  fileBytes, err := os.ReadFile("./audio/songs/" + p.CurrentSong())
+  fileBytes, err := os.ReadFile(p.CurrentPlaylist() + "/" + p.CurrentSong())
   if err != nil {
     panic("reading my-file.mp3 failed: " + err.Error())
   }
@@ -34,8 +34,10 @@ func Player(p *Playlist, otoCtx *oto.Context, readyChan chan struct {} ) oto.Pla
     time_now := time.Now()
     for {
       for player.IsPlaying() {
+        since := int(time.Since(time_now).Round(time.Second))  
         time.Sleep(time.Millisecond)
-        if int(time.Since(time_now).Round(time.Second)) == int(songDurationMp3(decodedMp3)) * 1000000000 {
+        p.SetTime(since) 
+        if since == int(songDurationMp3(decodedMp3)) * 1000000000 {
           player.Close() 
           keyboard.SimulateKeyPress(keys.Tab)
         }
@@ -46,7 +48,6 @@ func Player(p *Playlist, otoCtx *oto.Context, readyChan chan struct {} ) oto.Pla
     }
   }()
   return *player 
-  
 }
 func songDurationMp3(d *mp3.Decoder) int64 {
   samples := d.Length() / 4      // Number of samples.
