@@ -1,8 +1,9 @@
 package main
 
-import (
-)
+import "fmt"
 
 func main() {
-  Player("retro_game_over.wav")
+  path := "audio/The_Pretender.wav" 
+  m := GetMetaData(path)
+  fmt.Println(m)
 }

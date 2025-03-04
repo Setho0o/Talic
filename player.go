@@ -8,17 +8,43 @@ import (
 	"os"
 	"strings"
 	"time"
-  "github.com/hajimehoshi/ebiten/v2/audio/vorbis"
+
 	"github.com/ebitengine/oto/v3"
 	"github.com/go-flac/go-flac/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio/vorbis"
 	"github.com/hajimehoshi/go-mp3"
 	"github.com/youpy/go-wav"
+	"go.senan.xyz/taglib"
 )
 
 type SoundType int
 
+type MusicPlayer struct {
+  playlist int
+  song int
+  update int
+  data MetaData
+
+
+}
+
+type MetaData struct {
+  title string
+  artist string
+  url string
+  views string
+  likes string
+  date string
+  desc string
+  
+  length time.Duration
+  bitRate uint
+  sampleRate uint
+  channels uint
+}
+
 const (
-	Mp3 SoundType = iota
+  Mp3 SoundType = iota
 	Wav
   Flac
   Vorbis
@@ -51,7 +77,7 @@ func DecodeAudio(t SoundType, b []byte) io.Reader {
 			log.Fatal("failed decoding vorbis", err)
     } 
     reader = v 
-  }
+  }  
 	return reader
 }
 
@@ -62,10 +88,39 @@ func GetSoundType(path string) (SoundType, error) {
     return Wav, nil
   } else if strings.HasSuffix(path,"flac") {
     return Flac, nil
-  } else if strings.HasSuffix(path,"ogg") {
+  } else if strings.HasSuffix(path,"ogg") || strings.HasSuffix(path,"opus") {
     return Vorbis, nil
   } 
-  return Nil, fmt.Errorf("Invaild file must be mp3 wav or flac")
+  return Nil, fmt.Errorf("Invaild file must be mp3, wav, flac, ogg, or opus.")
+}
+
+func GetMetaData(path string) MetaData {
+  t, err := taglib.ReadTags(path) 
+  if err != nil {
+    log.Fatal("failed to read metadata from file", err)
+  }
+  p, err := taglib.ReadProperties(path)
+  if err != nil {
+    log.Fatal("failed to read metadata from file", err)
+  }
+  fmt.Println(t["URL"])
+
+  desc := strings.Join(t[taglib.Comment],"")
+
+  return MetaData {
+    title: t[taglib.Title][0], 
+    artist: t[taglib.Artist][0],
+  //  url: t[taglib.URL][0],
+  //  views: t[taglib.Media][0],
+   // likes: t[likes][0],
+    date: t[taglib.Date][0],
+    desc: desc,
+    
+    length: p.Length,
+    bitRate: p.Bitrate,
+    sampleRate: p.SampleRate,
+    channels: p.Channels,
+  }
 }
 
 func Player(path string) {
@@ -76,7 +131,7 @@ func Player(path string) {
 	}
 
 	op := &oto.NewContextOptions{}
-	op.SampleRate = 44100 // Usually 44100 or 48000
+	op.SampleRate = 48000 // Usually 44100 or 48000
 	op.ChannelCount = 2 // 1 is mono sound, and 2 is stereo (most speakers are stereo)
 	op.Format = oto.FormatSignedInt16LE // Format of the source. go-mp3's format is signed 16bit
 	otoCtx, readyChan, err := oto.NewContext(op) // Remember that you should **not** create more than one context 
@@ -95,15 +150,12 @@ func Player(path string) {
 
 	// Play starts playing the sound and returns without waiting for it (Play() is async).
 	player.Play()
-
+  
 	// We can wait for the sound to finish playing using something like this
 
-  t := time.Now()
 	for player.IsPlaying() {
 		time.Sleep(time.Millisecond)
-    if time.Since(t) > 10 * time.Second {
-      player.Close() 
-    }
+    
 	}
 
 	// Now that the sound finished playing, we can restart from the beginning (or go to any location in the sound) using seek
@@ -120,5 +172,3 @@ func Player(path string) {
 		panic("player.Close failed: " + err.Error())
 	}
 }
-
-
