@@ -1,9 +1,14 @@
 package main
 
-import "fmt"
+import (
 
+	"github.com/Setho0o/Talic/ui"
+)
+
+//"github.com/Setho0o/Talic/ui"
 func main() {
-  path := "audio/The_Pretender.wav" 
-  m := GetMetaData(path)
-  fmt.Println(m)
+//json :=   `'"The_Pretender [BMMGwtklEeE].wav"`
+	ui.Gui()
+//	FormatAudioDir()
+ 	//Player(song)
 }

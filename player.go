@@ -14,34 +14,9 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/audio/vorbis"
 	"github.com/hajimehoshi/go-mp3"
 	"github.com/youpy/go-wav"
-	"go.senan.xyz/taglib"
 )
 
 type SoundType int
-
-type MusicPlayer struct {
-  playlist int
-  song int
-  update int
-  data MetaData
-
-
-}
-
-type MetaData struct {
-  title string
-  artist string
-  url string
-  views string
-  likes string
-  date string
-  desc string
-  
-  length time.Duration
-  bitRate uint
-  sampleRate uint
-  channels uint
-}
 
 const (
   Mp3 SoundType = iota
@@ -94,38 +69,8 @@ func GetSoundType(path string) (SoundType, error) {
   return Nil, fmt.Errorf("Invaild file must be mp3, wav, flac, ogg, or opus.")
 }
 
-func GetMetaData(path string) MetaData {
-  t, err := taglib.ReadTags(path) 
-  if err != nil {
-    log.Fatal("failed to read metadata from file", err)
-  }
-  p, err := taglib.ReadProperties(path)
-  if err != nil {
-    log.Fatal("failed to read metadata from file", err)
-  }
-  fmt.Println(t["URL"])
-
-  desc := strings.Join(t[taglib.Comment],"")
-
-  return MetaData {
-    title: t[taglib.Title][0], 
-    artist: t[taglib.Artist][0],
-  //  url: t[taglib.URL][0],
-  //  views: t[taglib.Media][0],
-   // likes: t[likes][0],
-    date: t[taglib.Date][0],
-    desc: desc,
-    
-    length: p.Length,
-    bitRate: p.Bitrate,
-    sampleRate: p.SampleRate,
-    channels: p.Channels,
-  }
-}
-
 func Player(path string) {
 	fileBytes, err := os.ReadFile(path)
-
 	if err != nil {
 		log.Fatal("failed reading file", err)
 	}
@@ -138,7 +83,7 @@ func Player(path string) {
 	if err != nil {
 		panic("oto.NewContext failed: " + err.Error())
 	}
-	// It might take a bit for the hardware audio devices to be ready, so we wait on the channel.
+
 	<-readyChan
 
   fileType, err := GetSoundType(path)
@@ -148,16 +93,11 @@ func Player(path string) {
  
 	player := otoCtx.NewPlayer(DecodeAudio(fileType, fileBytes))
 
-	// Play starts playing the sound and returns without waiting for it (Play() is async).
-	player.Play()
-  
-	// We can wait for the sound to finish playing using something like this
-
+	player.Play() // play is async
 	for player.IsPlaying() {
 		time.Sleep(time.Millisecond)
     
 	}
-
 	// Now that the sound finished playing, we can restart from the beginning (or go to any location in the sound) using seek
 	// newPos, err := player.(io.Seeker).Seek(0, io.SeekStart)
 	// if err != nil{
@@ -165,8 +105,6 @@ func Player(path string) {
 	// }
 	// println("Player is now at position:", newPos)
 	// player.Play()
-
-	// If you don't want the player/sound anymore simply close
 	err = player.Close()
 	if err != nil {
 		panic("player.Close failed: " + err.Error())
