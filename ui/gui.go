@@ -29,10 +29,10 @@ func Gui() {
 
 func run(window *app.Window) error {
 	var (
-		ops op.Ops
+		ops            op.Ops
 		FlexBoxButtons = [6]Button{}
 	)
-			
+
 	theme := material.NewTheme()
 
 	for {
@@ -41,20 +41,20 @@ func run(window *app.Window) error {
 			return e.Err
 		case app.FrameEvent:
 			gtx := app.NewContext(&ops, e) // graphics ctx
-			m := gtx.Constraints.Max	
-			
+			m := gtx.Constraints.Max
+
 			layout.Stack{
-				Alignment: layout.S,	
+				Alignment: layout.S,
 			}.Layout(gtx,
-				layout.Expanded( 
+				layout.Expanded(
 					func(gtx layout.Context) layout.Dimensions {
-						return DrawSquare(gtx,m,Bg)
+						return DrawSquare(gtx, m, Bg)
 					},
 				),
 				layout.Stacked(
 					func(gtx layout.Context) layout.Dimensions {
 						//return DrawSquare(gtx,DpPt(float64(m.X),200),blue)
-						return FlexBox(gtx, &FlexBoxButtons,theme)
+						return FlexBox(gtx, &FlexBoxButtons, theme)
 					},
 				),
 			)

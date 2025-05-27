@@ -19,11 +19,11 @@ import (
 type SoundType int
 
 const (
-  Mp3 SoundType = iota
+	Mp3 SoundType = iota
 	Wav
-  Flac
-  Vorbis
-  Nil
+	Flac
+	Vorbis
+	Nil
 )
 
 func DecodeAudio(t SoundType, b []byte) io.Reader {
@@ -38,35 +38,35 @@ func DecodeAudio(t SoundType, b []byte) io.Reader {
 
 	case Wav:
 		reader = wav.NewReader(bytes.NewReader(b))
-  
-  case Flac: 
-    f, err := flac.ParseBytes(bytes.NewReader(b))
-    if err != nil {
+
+	case Flac:
+		f, err := flac.ParseBytes(bytes.NewReader(b))
+		if err != nil {
 			log.Fatal("failed decoding flac", err)
 		}
-    reader = f.Frames
+		reader = f.Frames
 
-  case Vorbis: 
-    v, err := vorbis.DecodeF32(bytes.NewReader(b))
-    if err != nil {
+	case Vorbis:
+		v, err := vorbis.DecodeF32(bytes.NewReader(b))
+		if err != nil {
 			log.Fatal("failed decoding vorbis", err)
-    } 
-    reader = v 
-  }  
+		}
+		reader = v
+	}
 	return reader
 }
 
 func GetSoundType(path string) (SoundType, error) {
-  if strings.HasSuffix(path, "mp3") {
-    return Mp3, nil
-  } else if strings.HasSuffix(path, "wav") {
-    return Wav, nil
-  } else if strings.HasSuffix(path,"flac") {
-    return Flac, nil
-  } else if strings.HasSuffix(path,"ogg") || strings.HasSuffix(path,"opus") {
-    return Vorbis, nil
-  } 
-  return Nil, fmt.Errorf("Invaild file must be mp3, wav, flac, ogg, or opus.")
+	if strings.HasSuffix(path, "mp3") {
+		return Mp3, nil
+	} else if strings.HasSuffix(path, "wav") {
+		return Wav, nil
+	} else if strings.HasSuffix(path, "flac") {
+		return Flac, nil
+	} else if strings.HasSuffix(path, "ogg") || strings.HasSuffix(path, "opus") {
+		return Vorbis, nil
+	}
+	return Nil, fmt.Errorf("Invaild file must be mp3, wav, flac, ogg, or opus.")
 }
 
 func Player(path string) {
@@ -76,27 +76,27 @@ func Player(path string) {
 	}
 
 	op := &oto.NewContextOptions{}
-	op.SampleRate = 48000 // Usually 44100 or 48000
-	op.ChannelCount = 2 // 1 is mono sound, and 2 is stereo (most speakers are stereo)
-	op.Format = oto.FormatSignedInt16LE // Format of the source. go-mp3's format is signed 16bit
-	otoCtx, readyChan, err := oto.NewContext(op) // Remember that you should **not** create more than one context 
+	op.SampleRate = 48000                        // Usually 44100 or 48000
+	op.ChannelCount = 2                          // 1 is mono sound, and 2 is stereo (most speakers are stereo)
+	op.Format = oto.FormatSignedInt16LE          // Format of the source. go-mp3's format is signed 16bit
+	otoCtx, readyChan, err := oto.NewContext(op) // Remember that you should **not** create more than one context
 	if err != nil {
 		panic("oto.NewContext failed: " + err.Error())
 	}
 
 	<-readyChan
 
-  fileType, err := GetSoundType(path)
+	fileType, err := GetSoundType(path)
 	if err != nil {
 		log.Fatal(err)
 	}
- 
+
 	player := otoCtx.NewPlayer(DecodeAudio(fileType, fileBytes))
 
 	player.Play() // play is async
 	for player.IsPlaying() {
 		time.Sleep(time.Millisecond)
-    
+
 	}
 	// Now that the sound finished playing, we can restart from the beginning (or go to any location in the sound) using seek
 	// newPos, err := player.(io.Seeker).Seek(0, io.SeekStart)

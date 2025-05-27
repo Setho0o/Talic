@@ -41,23 +41,23 @@ func (b *Button) Layout(gtx layout.Context, path string) layout.Dimensions {
 		}
 	}
 	area.Pop()
-	
+
 	file, err := os.ReadFile(path)
 	if err != nil {
 		log.Fatal(err, "failed to open file play.png")
 	}
-	img,_,err := image.Decode(bytes.NewReader(file))
+	img, _, err := image.Decode(bytes.NewReader(file))
 	if err != nil {
 		log.Fatal(err, "failed to decode play.png into a image ")
-	}	
-	return DrawImage(gtx.Ops,img)
+	}
+	return DrawImage(gtx.Ops, img)
 }
 
 func FlexBox(gtx layout.Context, fb *[6]Button, th *material.Theme) layout.Dimensions {
 	return layout.Flex{
-				Axis: layout.Horizontal,
-				Spacing: layout.SpaceEnd,
-				Alignment: layout.Start,		
+		Axis:      layout.Horizontal,
+		Spacing:   layout.SpaceEnd,
+		Alignment: layout.Start,
 	}.Layout(
 		gtx,
 		layout.Rigid(
@@ -66,7 +66,7 @@ func FlexBox(gtx layout.Context, fb *[6]Button, th *material.Theme) layout.Dimen
 					log.Print("back")
 					fb[0].pressed = false
 				}
-				return fb[0].Layout(gtx,Back)
+				return fb[0].Layout(gtx, Back)
 			},
 		),
 		layout.Rigid(
@@ -75,7 +75,7 @@ func FlexBox(gtx layout.Context, fb *[6]Button, th *material.Theme) layout.Dimen
 					log.Print("Pause/Play")
 					fb[1].pressed = false
 				}
-				return fb[1].Layout(gtx,Pause)
+				return fb[1].Layout(gtx, Pause)
 			},
 		),
 		layout.Rigid(
@@ -84,7 +84,7 @@ func FlexBox(gtx layout.Context, fb *[6]Button, th *material.Theme) layout.Dimen
 					log.Print("next")
 					fb[2].pressed = false
 				}
-				return fb[2].Layout(gtx,Next)
+				return fb[2].Layout(gtx, Next)
 			},
 		),
 		layout.Flexed(
@@ -97,16 +97,16 @@ func FlexBox(gtx layout.Context, fb *[6]Button, th *material.Theme) layout.Dimen
 					log.Print("shuffle")
 					fb[3].pressed = false
 				}
-				return fb[3].Layout(gtx,Next)
+				return fb[3].Layout(gtx, Next)
 			},
-		), 
+		),
 		layout.Rigid(
 			func(gtx layout.Context) layout.Dimensions {
 				for fb[4].pressed {
 					log.Print("restart")
 					fb[4].pressed = false
 				}
-				return fb[4].Layout(gtx,Next)
+				return fb[4].Layout(gtx, Next)
 			},
 		),
 		layout.Rigid(
@@ -115,7 +115,7 @@ func FlexBox(gtx layout.Context, fb *[6]Button, th *material.Theme) layout.Dimen
 					log.Print("playlist")
 					fb[5].pressed = false
 				}
-				return fb[5].Layout(gtx,Next)
+				return fb[5].Layout(gtx, Next)
 			},
 		),
 	)
