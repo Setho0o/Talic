@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -47,7 +46,7 @@ func MakeSongData() map[string]MetaData {
 				if pe.IsDir() {
 					log.Fatal("Error cant have a playlist inside a playist")
 				} else {
-					json := CheckJsonExists(pe.Name(), ppath)
+					json, _ := CheckJsonExists(pe.Name(), ppath)
 					m[pe.Name()] = JsonToMetaData(json, ppath)
 				}
 			}
@@ -56,31 +55,31 @@ func MakeSongData() map[string]MetaData {
 			if strings.Contains(e.Name(), ".json") {
 				continue
 			}
-			json := CheckJsonExists(e.Name(), path)
+			json, _ := CheckJsonExists(e.Name(), path)
 			m[e.Name()] = JsonToMetaData(json, path)
 		}
 	}
 	return m
 }
 
-func CheckJsonExists(file, path string) string { // returns the json file name
+func CheckJsonExists(file, path string) (string, string ) { // returns the json file name
 	// the audio files all have a corresponding json file for meta data
 	if !strings.Contains(file, ".") {
 		log.Fatal("invalid file type: " + file)
 	}
+
 	n := strings.Split(file, "")
 	index := strings.LastIndex(file, ".")
-	fmt.Println(n[index:])
+	
+	format := n[index:] 
 
 	json := strings.ReplaceAll(file, "wav", "info.json")
-	//json := strings.Join(n[:index],"")+".info.json"
-	fmt.Println(path + json)
+
 	_, err := os.Stat(path + json)
 	if err != nil { // if json file doesnt exist we make it
 		MakeJson(file, path)
 	}
-
-	return json
+	return json , strings.Join(format, "")
 }
 
 func MakeJson(file, path string) {

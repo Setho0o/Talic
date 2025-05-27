@@ -30,7 +30,7 @@ func FixFileNames() {
 					if strings.Contains(pe.Name(), ".json") {
 						continue
 					}
-					Rename(path, pe.Name())
+					Rename(ppath, pe.Name())
 
 				}
 			}
@@ -45,10 +45,11 @@ func FixFileNames() {
 
 func Rename(path, name string) {
 
-	json := CheckJsonExists(name, path)
+	json, format := CheckJsonExists(name, path)
 	data := JsonToMetaData(json, path)
 
-	fmt.Println(data.title)
+	fmt.Println(name)
+	fmt.Println(data.title+format)
 	/*
 	   err := os.Rename(path+name, path+fixed)
 
