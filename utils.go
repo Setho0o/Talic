@@ -1,159 +1,58 @@
 package main
 
 import (
-	"encoding/json"
-	"log"
-	"os"
-	"slices"
-	"strings"
-)
-const (
-//	folder string = "audio"
+"fmt"
+"log"
+"os"
+"strings"
 )
 
-type MetaData struct {
-  title string 
-  artist string 
-  url string 
-  views string 
-  likes string 
-  date string 
-  desc string
-  length string 
+func FixFileNames() {
+files, err := os.ReadDir("./audio")
+if err != nil {
+	log.Fatal("Error reading audio directory: ", err)
 }
 
-func MakeSongData() map[string]MetaData {
-	files, err := os.ReadDir("./audio")	
-	if err != nil {
-		log.Fatal("Error reading audio directory: ", err)
+for _, e := range files {
+	path := "./audio/"
+	if e.IsDir() {
 
-	}
-	
-	m := make(map[string]MetaData)
+		ppath := "./audio/" + e.Name() + "/"
 
-	for _, e := range files { 
-		if e.IsDir() { // In Talic a directory is a playlist 
-			
-			path := "./audio/"+e.Name()+"/"
-
-			playlistFiles, err := os.ReadDir(path)
-			if err != nil {
-				log.Fatal("Error reading "+e.Name()+" directory: ", err)
-			}	
-
-			for _, pe := range playlistFiles {
-				if pe.IsDir() {
-					log.Fatal("Error cant have a playlist inside a playist")
-				} else {
-					
-					json := CheckJsonExists(pe.Name(),path)
-					m[pe.Name()] = JsonToMetaData(json, path)
-				}
-			}
-
-		} else {
-			json := CheckJsonExists(e.Name(),"audio/")
-			m[e.Name()] = JsonToMetaData(json, "audio/")
+		playlistFiles, err := os.ReadDir(ppath)
+		if err != nil {
+			log.Fatal("Error reading "+e.Name()+" directory: ", err)
 		}
-	}
-  return m
-}
-
-func CheckJsonExists(file, path string) string { // returns the json file name
-	// the audio files all have a corresponding json file for meta data 	
-	n := strings.Split(file,".")
-	json := n[0]+".json"
-	
-	_, err := os.Stat(path+json) 
-	if err != nil { // if json file doesnt exist we make it 
-		MakeJson(file, path)
-	}
-
-	
-	return json
-}
-
-func MakeJson(file, path string) {
-	/* 
-		for now it doesnt make sense to make the json seperate seperate from the audio files ill have to add
-		music searching and move my ytdl code into golang first so for now its just an error
-	*/
-	log.Fatal(path+file+" not found delete the corresponding audio file and run the download script again")
-}
-
-func JsonToMetaData(file, path string) MetaData {
-	// for now we have to make a new payload everytime we decode a file and assert the type it would be faster to just to encode it
-	// onto the struct but those are optimizations for another day
-	content, err := os.ReadFile(path+file)
-  if err != nil {
-      log.Fatal("Error reading file: ", err)
-  }
-
-  var payload map[string]any
-
-  err = json.Unmarshal(content, &payload)
-  if err != nil {
-      log.Fatal("Error during json unmashal: ", err)
-  }
-
-	return MetaData{
-		title: payload["title"].(string),
-		artist: payload["artist"].(string),
-		url: payload["url"].(string),
-		views: payload["meta_view"].(string),
-		likes: payload["meta_likes"].(string),
-		date: payload["upload_date"].(string),
-		desc: payload["meta_comment"].(string),
-		length: payload["duration_string"].(string),
-	}
-}
-
-func FormatAudioDir() {
-	files, err := os.ReadDir("./audio")	
-	if err != nil {
-		log.Fatal("Error reading audio directory: ", err)
-
-	}
-	
-	for _, e := range files { 
-		if e.IsDir() { 
-			
-			path := "./audio/"+e.Name()+"/"
-
-			playlistFiles, err := os.ReadDir(path)
-			if err != nil {
-				log.Fatal("Error reading "+e.Name()+" directory: ", err)
-			}	
-			for _, pe := range playlistFiles {
-				if pe.IsDir() {
-					log.Fatal("Error cant have a playlist inside a playist")
-				} else {
-					
-					FixFileName(pe.Name(), path)
+		for _, pe := range playlistFiles {
+			if pe.IsDir() {
+				log.Fatal("Error cant have a playlist inside a playist")
+			} else {
+				if strings.Contains(pe.Name(), ".json") {
+					continue
 				}
-			}
-		} else {
-			FixFileName(e.Name(),"./audio/")
-		}
-	}
- 
+				Rename(path, pe.Name())
 
+			}
+		}
+	} else {
+		if strings.Contains(e.Name(), ".json") {
+			continue
+		}
+		Rename(path, e.Name())
+	}
+}
 }
 
-func FixFileName(name, path string) {
-	//still doesnt work for all names possibly try and use metadata to fix it in the future
-	fixed := name
-	if strings.Contains(fixed, "[") {
-		start := strings.Index(fixed,"[")
-		end := strings.Index(fixed,"]")	+ 1
-		s := strings.Split(fixed,"")
-		fixed = strings.Join(slices.Delete(s,start,end),"")
-	}
+func Rename(path, name string) {
 
-	fixed = strings.Replace(fixed,`'`,"", -1 )
-	fixed = strings.Replace(fixed,`"`,"", -1 )
-	fixed = strings.Replace(fixed,".info","", -1 )
-	fixed = strings.Replace(fixed," ","", -1 )
-	
-	os.Rename(path+name,path+fixed)
+json := CheckJsonExists(name, path)
+data := JsonToMetaData(json, path)
+
+fmt.Println(data.title)
+/*
+	err := os.Rename(path+name, path+fixed)
+	if err != nil {
+		log.Fatal("Error failed to rename: " + path + name)
+	}
+*/
 }

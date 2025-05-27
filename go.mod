@@ -9,7 +9,6 @@ require (
 	github.com/hajimehoshi/ebiten/v2 v2.8.6
 	github.com/hajimehoshi/go-mp3 v0.3.4
 	github.com/youpy/go-wav v0.3.2
-	go.senan.xyz/taglib v0.6.1
 )
 
 require (
@@ -19,7 +18,6 @@ require (
 	github.com/jfreymuth/oggvorbis v1.0.5 // indirect
 	github.com/jfreymuth/vorbis v1.0.2 // indirect
 	github.com/stretchr/testify v1.10.0 // indirect
-	github.com/tetratelabs/wazero v1.8.2 // indirect
 	github.com/youpy/go-riff v0.1.0 // indirect
 	github.com/zaf/g711 v0.0.0-20190814101024-76a4a538f52b // indirect
 	golang.org/x/exp v0.0.0-20240707233637-46b078467d37 // indirect
